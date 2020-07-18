@@ -1,0 +1,13 @@
+from yap import DEFAULT_YAP_EXPIRE_IN
+from datetime import timedelta
+
+# SECRET_KEY = 'PLEASE MAKE ME LONG AND UNIQUE'
+
+# SQLALCHEMY_DATABASE_URI = 'scheme://user:pass@some/database/uri'  # default: yap.sqlite in application's instance dir
+# SQLALCHEMY_TRACK_MODIFICATIONS = False
+# ALEMBIC_CONTEXT = {"render_as_batch": True}  # might be required for sqlite, consult sqlalchemy docs for details
+
+# YAP_EXPIRE_IN is a dictionary ('display value' -> datetime.timedelta) that represents valid paste lifetimes
+# Inspect code for default configuration.
+# YAP_EXPIRE_IN = {'42 days': timedelta(days=42), '15 minutes': timedelta(minutes=15)}
+# YAP_EXPIRE_IN = DEFAULT_YAP_EXPIRE_IN
