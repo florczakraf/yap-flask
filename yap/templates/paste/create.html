@@ -7,7 +7,7 @@
     <label for="filename">Filename</label>
     <input name="filename" id="filename" value="{{ request.form['filename'] }}" required>
     <label for="contents">Contents</label>
-    <textarea name="contents" id="contents">{{ request.form['contents'] }}</textarea>
+    <textarea name="contents" id="contents" required>{{ request.form['contents'] }}</textarea>
     <label for="expire_in">Expire in</label>
     <select name="expire_in" id="expire_in" required>
         {% for expiration_option in expiration_options %}
