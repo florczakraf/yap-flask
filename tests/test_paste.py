@@ -61,3 +61,11 @@ def test_show(client):
     assert response.status_code == 200
     assert "foo.txt" in response_text
     assert "some contents" in response_text
+
+
+def test_raw_show(client):
+    response = client.get("/paste/foo_uuid/raw")
+
+    assert response.status_code == 200
+    assert response.content_type == "application/octet-stream"
+    assert "some contents".encode() == response.get_data()

@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import uuid4
 
-from flask import Blueprint, request, flash, redirect, url_for, render_template, current_app
+from flask import Blueprint, request, flash, redirect, url_for, render_template, current_app, Response
 
 from yap import db
 from yap.models import Paste
@@ -70,3 +70,10 @@ def show(uuid):
     paste = Paste.query.filter_by(uuid=uuid).first_or_404()
 
     return render_template("paste/show.html", paste=paste)
+
+
+@bp.route("/paste/<uuid>/raw", methods=("GET",))
+def raw_show(uuid):
+    paste = Paste.query.filter_by(uuid=uuid).first_or_404()
+
+    return Response(paste.contents, mimetype="application/octet-stream")

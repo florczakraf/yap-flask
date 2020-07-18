@@ -3,7 +3,9 @@
 {% block title %}{{ paste.filename }}{% endblock %}
 
 {% block content %}
-<pre>
-{{ paste.contents }}
-</pre>
+    <pre>{{ paste.contents }}</pre>
+    <hr>
+    <ul>
+        <li><a href="{{ url_for('paste.raw_show', uuid=paste.uuid) }}" target="_blank">Download raw file</a></li>
+    </ul>
 {% endblock %}
