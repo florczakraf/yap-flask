@@ -1,5 +1,8 @@
+import datetime
+
 import pytest
 
+from yap import db
 from yap.models import Paste
 from yap.paste import UNTITLED_FILE
 
@@ -69,3 +72,21 @@ def test_raw_show(client):
     assert response.status_code == 200
     assert response.content_type == "application/octet-stream"
     assert "some contents".encode() == response.get_data()
+
+
+def test_expiration_date_is_respected(client, app):
+    with app.app_context():
+        paste = Paste(
+            uuid="outdated_paste",
+            filename="foo",
+            contents="bar",
+            created_at=datetime.datetime.fromisoformat("2020-05-23T10:30:00+00:00"),
+            visibility="hidden",
+            expire_at=datetime.datetime.utcnow() - datetime.timedelta(milliseconds=1),
+            author_ip="baz",
+        )
+        db.session.add(paste)
+        db.session.commit()
+
+    assert client.get("/paste/outdated_paste").status_code == 404
+    assert client.get("/paste/outdated_paste/raw").status_code == 404

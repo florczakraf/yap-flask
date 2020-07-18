@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import uuid4
 
-from flask import Blueprint, request, flash, redirect, url_for, render_template, current_app, Response
+from flask import Blueprint, request, flash, redirect, url_for, render_template, current_app, Response, abort
 
 from yap import db
 from yap.models import Paste
@@ -65,15 +65,22 @@ def create():
     )
 
 
-@bp.route("/paste/<uuid>", methods=("GET",))
-def show(uuid):
+def get_paste_or_404(uuid):
     paste = Paste.query.filter_by(uuid=uuid).first_or_404()
 
-    return render_template("paste/show.html", paste=paste)
+    if paste.expire_at < datetime.utcnow():
+        abort(404)
+
+    return paste
+
+
+@bp.route("/paste/<uuid>", methods=("GET",))
+def show(uuid):
+    return render_template("paste/show.html", paste=get_paste_or_404(uuid))
 
 
 @bp.route("/paste/<uuid>/raw", methods=("GET",))
 def raw_show(uuid):
-    paste = Paste.query.filter_by(uuid=uuid).first_or_404()
+    paste = get_paste_or_404(uuid)
 
     return Response(paste.contents, mimetype="application/octet-stream")
