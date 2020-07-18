@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ paste.filename }}{% endblock %}
+
+{% block content %}
+<pre>
+{{ paste.contents }}
+</pre>
+{% endblock %}

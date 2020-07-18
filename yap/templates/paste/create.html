@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}New yap{% endblock %}
+
+{% block content %}
+<form method="post">
+    <label for="filename">Filename</label>
+    <input name="filename" id="filename" value="{{ request.form['filename'] }}" required>
+    <label for="contents">Contents</label>
+    <textarea name="contents" id="contents">{{ request.form['contents'] }}</textarea>
+    <label for="expire_in">Expire in</label>
+    <select name="expire_in" id="expire_in" required>
+        {% for expiration_option in expiration_options %}
+            <option
+                value="{{ expiration_option }}"
+                {% if loop.first and not request.form['expire_in'] or request.form['expire_in'] == expiration_option %}
+                selected
+                {% endif %}
+            >
+                {{ expiration_option }}
+            </option>
+        {% endfor %}
+    </select>
+    <label for="visibility">Visibility</label>
+    <select name="visibility" id="visibility">
+        {% for visibility in visibility_options %}
+            <option
+                value="{{ visibility }}"
+                {% if loop.first and not request.form['visibility'] or request.form['visibility'] == visibility %}
+                selected
+                {% endif %}
+            >
+                {{ visibility }}
+            </option>
+        {% endfor %}
+    </select>
+    <hr>
+    <input type="submit" value="yap it!">
+</form>
+{% endblock %}
