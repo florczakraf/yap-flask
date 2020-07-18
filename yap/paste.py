@@ -16,6 +16,15 @@ def is_expire_in_valid(expire_in):
     return expire_in in current_app.config["YAP_EXPIRE_IN"]
 
 
+def get_latest_pastes(n):
+    return (
+        Paste.query.filter(Paste.expire_at > datetime.utcnow(), Paste.visibility == "public")
+        .order_by(Paste.created_at.desc())
+        .limit(n)
+        .all()
+    )
+
+
 @bp.route("/", methods=("GET", "POST"))
 def create():
     if request.method == "POST":
@@ -62,6 +71,7 @@ def create():
         visibility_options=[x.name for x in Paste.Visibility],
         expiration_options=current_app.config["YAP_EXPIRE_IN"],
         filename_placeholder=UNTITLED_FILE,
+        latest_pastes=get_latest_pastes(5),
     )
 
 

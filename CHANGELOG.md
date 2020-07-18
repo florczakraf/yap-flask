@@ -1,3 +1,6 @@
+# upcoming
+- latest public pastes are now shown on the main page
+
 # 0.2.0
 - banner is now a link
 - filename can be now omitted in the form

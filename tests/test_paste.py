@@ -4,7 +4,21 @@ import pytest
 
 from yap import db
 from yap.models import Paste
-from yap.paste import UNTITLED_FILE
+from yap.paste import UNTITLED_FILE, get_latest_pastes
+
+
+def make_paste(
+    uuid, filename="foo", contents="bar", visibility="public", created_at=None, expire_at=None, author_ip="baz",
+):
+    return Paste(
+        uuid=uuid,
+        filename=filename,
+        contents=contents,
+        visibility=visibility,
+        created_at=created_at or datetime.datetime.utcnow(),
+        expire_at=expire_at or datetime.datetime.utcnow() + datetime.timedelta(days=1),
+        author_ip=author_ip,
+    )
 
 
 def test_create(client, app):
@@ -76,17 +90,21 @@ def test_raw_show(client):
 
 def test_expiration_date_is_respected(client, app):
     with app.app_context():
-        paste = Paste(
-            uuid="outdated_paste",
-            filename="foo",
-            contents="bar",
-            created_at=datetime.datetime.fromisoformat("2020-05-23T10:30:00+00:00"),
-            visibility="hidden",
-            expire_at=datetime.datetime.utcnow() - datetime.timedelta(milliseconds=1),
-            author_ip="baz",
-        )
+        paste = make_paste("expired_paste", expire_at=datetime.datetime.utcnow() - datetime.timedelta(milliseconds=1))
         db.session.add(paste)
         db.session.commit()
 
-    assert client.get("/paste/outdated_paste").status_code == 404
-    assert client.get("/paste/outdated_paste/raw").status_code == 404
+    assert client.get("/paste/expired_paste").status_code == 404
+    assert client.get("/paste/expired_paste/raw").status_code == 404
+
+
+def test_get_latest_pastes(app):
+    with app.app_context():
+        db.session.add(make_paste(uuid="over_limit"))
+        db.session.add(make_paste(uuid="older"))
+        db.session.add(make_paste(uuid="hidden", visibility="hidden"))
+        db.session.add(make_paste(uuid="expired", expire_at=datetime.datetime.utcnow() - datetime.timedelta(minutes=1)))
+        db.session.add(make_paste(uuid="newer"))
+        db.session.commit()
+
+        assert [paste.uuid for paste in get_latest_pastes(2)] == ["newer", "older"]

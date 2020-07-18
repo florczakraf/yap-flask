@@ -37,4 +37,11 @@
     <hr>
     <input type="submit" value="yap it!">
 </form>
+<hr>
+<h3>Latest yaps</h3>
+<ul>
+    {% for paste in latest_pastes %}
+        <li><a class="truncated" href="{{ url_for('paste.show', uuid=paste.uuid) }}">{{ paste.filename }}</a></li>
+    {% endfor %}
+</ul>
 {% endblock %}
