@@ -1,4 +1,5 @@
 # upcoming
+- pastes are now public by default
 - latest public pastes are now shown on the main page
 
 # 0.2.0

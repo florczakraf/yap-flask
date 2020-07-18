@@ -6,8 +6,8 @@ from yap import db
 
 class Paste(db.Model):
     class Visibility(enum.Enum):
-        hidden = "Hidden"
         public = "Public"
+        hidden = "Hidden"
 
     uuid = db.Column(db.Text, primary_key=True, nullable=False)
     filename = db.Column(db.Text, nullable=False)
