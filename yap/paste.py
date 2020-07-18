@@ -6,6 +6,9 @@ from flask import Blueprint, request, flash, redirect, url_for, render_template,
 from yap import db
 from yap.models import Paste
 
+
+UNTITLED_FILE = "Untitled"
+
 bp = Blueprint("paste", __name__)
 
 
@@ -16,7 +19,7 @@ def is_expire_in_valid(expire_in):
 @bp.route("/", methods=("GET", "POST"))
 def create():
     if request.method == "POST":
-        filename = request.form["filename"]
+        filename = request.form["filename"] or UNTITLED_FILE
         contents = request.form["contents"]
         visibility = request.form["visibility"]
         expire_in = request.form["expire_in"]
@@ -58,6 +61,7 @@ def create():
         "paste/create.html",
         visibility_options=[x.name for x in Paste.Visibility],
         expiration_options=current_app.config["YAP_EXPIRE_IN"],
+        filename_placeholder=UNTITLED_FILE,
     )
 
 
