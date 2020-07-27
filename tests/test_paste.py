@@ -122,3 +122,28 @@ def test_paste_flood_is_prevented(client, app):
     assert response.status_code == http.HTTPStatus.TOO_MANY_REQUESTS
     assert "Retry-After" in response.headers
     assert rate_limit - epsilon <= response.retry_after - datetime.datetime.utcnow() <= rate_limit
+
+
+@pytest.mark.parametrize(
+    ("remote_address", "reverse_proxies", "forwarded_for", "expected_address"),
+    [
+        ("127.0.0.42", 0, None, "127.0.0.42"),
+        ("127.0.0.42", 0, "192.168.42.1", "127.0.0.42"),
+        ("127.0.0.42", 1, "192.168.42.1", "192.168.42.1"),
+        ("127.0.0.42", 2, "192.168.42.2 192.168.42.1", "192.168.42.2"),
+    ],
+)
+def test_author_ip(remote_address, reverse_proxies, forwarded_for, expected_address, client, app):
+    app.config["YAP_NUM_REVERSE_PROXIES"] = reverse_proxies
+    client.environ_base["REMOTE_ADDR"] = remote_address
+
+    response = client.post(
+        "/",
+        data=dict(filename="", contents="foo", visibility="hidden", expire_in="7 days"),
+        headers={"X-Forwarded-For": forwarded_for},
+    )
+    assert response.status_code == http.HTTPStatus.FOUND
+
+    with app.app_context():
+        paste = Paste.query.order_by(Paste.created_at.desc()).first()
+        assert paste.author_ip == expected_address
