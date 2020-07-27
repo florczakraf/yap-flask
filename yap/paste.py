@@ -1,3 +1,4 @@
+import http
 from datetime import datetime
 from uuid import uuid4
 
@@ -25,9 +26,25 @@ def get_latest_pastes(n):
     )
 
 
+def get_ip_from_request():
+    return request.remote_addr  # TODO what about proxies?
+
+
+def check_paste_rate_limit():
+    rate_limit = current_app.config["YAP_PASTE_RATE_LIMIT"]
+    last_paste = Paste.query.filter_by(author_ip=get_ip_from_request()).order_by(Paste.created_at.desc()).first()
+
+    if last_paste and last_paste.created_at + rate_limit > datetime.utcnow():
+        retry_after = last_paste.created_at + rate_limit - datetime.utcnow()
+        response = Response(status=http.HTTPStatus.TOO_MANY_REQUESTS, headers={"Retry-After": retry_after.seconds})
+        abort(response)
+
+
 @bp.route("/", methods=("GET", "POST"))
 def create():
     if request.method == "POST":
+        check_paste_rate_limit()
+
         filename = request.form["filename"] or UNTITLED_FILE
         contents = request.form["contents"]
         visibility = request.form["visibility"]
@@ -59,7 +76,7 @@ def create():
                 contents=contents,
                 visibility=visibility,
                 expire_at=expire_at,
-                author_ip=request.remote_addr,  # TODO.md what about proxies?
+                author_ip=get_ip_from_request(),
             )
             db.session.add(paste)
             db.session.commit()
