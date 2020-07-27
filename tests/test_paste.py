@@ -1,4 +1,5 @@
 import datetime
+import http
 
 import pytest
 
@@ -108,3 +109,16 @@ def test_get_latest_pastes(app):
         db.session.commit()
 
         assert [paste.uuid for paste in get_latest_pastes(2)] == ["newer", "older"]
+
+
+def test_paste_flood_is_prevented(client, app):
+    rate_limit = datetime.timedelta(seconds=420)
+    epsilon = datetime.timedelta(seconds=2)
+    app.config["YAP_PASTE_RATE_LIMIT"] = rate_limit
+
+    response = client.post("/", data=dict(filename="", contents="foo", visibility="hidden", expire_in="7 days"))
+    assert response.status_code == http.HTTPStatus.FOUND
+    response = client.post("/", data=dict(filename="", contents="bar", visibility="hidden", expire_in="7 days"))
+    assert response.status_code == http.HTTPStatus.TOO_MANY_REQUESTS
+    assert "Retry-After" in response.headers
+    assert rate_limit - epsilon <= response.retry_after - datetime.datetime.utcnow() <= rate_limit

@@ -11,3 +11,7 @@ from datetime import timedelta
 # Inspect code for default configuration.
 # YAP_EXPIRE_IN = {'42 days': timedelta(days=42), '15 minutes': timedelta(minutes=15)}
 # YAP_EXPIRE_IN = DEFAULT_YAP_EXPIRE_IN
+
+# YAP_PASTE_RATE_LIMIT is a datetime.timedelta that describes minimum time that must pass between two pastes from
+# a single IP address
+# YAP_PASTE_RATE_LIMIT = timedelta(seconds=30)

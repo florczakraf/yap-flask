@@ -28,6 +28,7 @@ def create_app(extra_app_config=None):
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         ALEMBIC_CONTEXT={"render_as_batch": True},
         YAP_EXPIRE_IN=DEFAULT_YAP_EXPIRE_IN,
+        YAP_PASTE_RATE_LIMIT=datetime.timedelta(seconds=30),
     )
     app.config.from_pyfile("config.py", silent=True)
     if extra_app_config:
