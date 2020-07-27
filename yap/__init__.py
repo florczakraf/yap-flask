@@ -29,6 +29,7 @@ def create_app(extra_app_config=None):
         ALEMBIC_CONTEXT={"render_as_batch": True},
         YAP_EXPIRE_IN=DEFAULT_YAP_EXPIRE_IN,
         YAP_PASTE_RATE_LIMIT=datetime.timedelta(seconds=30),
+        YAP_NUM_REVERSE_PROXIES=0,
     )
     app.config.from_pyfile("config.py", silent=True)
     if extra_app_config:

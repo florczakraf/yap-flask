@@ -27,7 +27,12 @@ def get_latest_pastes(n):
 
 
 def get_ip_from_request():
-    return request.remote_addr  # TODO what about proxies?
+    num_reverse_proxies = current_app.config["YAP_NUM_REVERSE_PROXIES"]
+
+    if num_reverse_proxies:
+        return request.headers["X-Forwarded-For"].split()[-num_reverse_proxies]
+
+    return request.remote_addr
 
 
 def check_paste_rate_limit():
