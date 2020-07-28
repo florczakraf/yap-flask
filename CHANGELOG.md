@@ -1,4 +1,4 @@
-# upcoming
+# 0.3.0
 - pastes are now public by default
 - latest public pastes are now shown on the main page
 - `YAP_PASTE_RATE_LIMIT` now controls how often new pastes can be created from the same IP
