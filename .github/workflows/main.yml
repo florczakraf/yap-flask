@@ -43,3 +43,29 @@ jobs:
       run: pip install .[test]
     - name: Run tests
       run: pytest -v
+
+  test-migrations:
+    runs-on: ubuntu-20.04
+    env:
+        RELATIVE_INSTANCE_DIR: var/yap-instance
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Prepare env
+      run: |
+          pip install setuptools wheel
+          python setup.py bdist_wheel
+          pip install dist/*.whl
+          export INSTANCE_DIR="$pythonLocation/$RELATIVE_INSTANCE_DIR"
+          mkdir -p "$INSTANCE_DIR"
+          echo "SECRET_KEY = 'some secret'" > "$INSTANCE_DIR/config.py"
+    - name: Run tests
+      env:
+          FLASK_APP: yap
+      run: |
+          cd /tmp  # to avoid using yap from .
+          flask db log | grep -q '<base> ->' || { echo "There are no migrations"; false; }
+          flask db upgrade
