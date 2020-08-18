@@ -1,3 +1,6 @@
+# upcoming
+- `migrations` are now part of the package
+
 # 0.3.0
 - pastes are now public by default
 - latest public pastes are now shown on the main page

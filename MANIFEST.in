@@ -1,3 +1,4 @@
 graft yap/static
 graft yap/templates
+graft yap/migrations
 global-exclude *.pyc
